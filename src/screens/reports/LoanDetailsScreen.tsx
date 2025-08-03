@@ -4,7 +4,7 @@ import { RouteProp, useRoute } from '@react-navigation/native';
 import { RootStackParamList } from '../../types/navigation';
 import { loansAPI } from '../../api/loans';
 import { paymentsAPI } from '../../api/payments';
-import { reportsAPI } from '../../api/reports';
+import { reportsAPI, LoanDetailsReport } from '../../api/reports';
 import { Card } from '../../components/common/Card';
 import { Loan, Installment, Payment } from '../../types/payment';
 import SafeAreaWrapper from '../../components/common/SafeAreaWrapper';
@@ -36,7 +36,13 @@ const LoanDetailsScreen: React.FC = () => {
       try {
         // Fetch loan details (loan, installments, payments, summary)
         const details = await reportsAPI.getLoanDetails(loanId);
-        // Map loan
+        // Debug: Log the loan details
+        console.log('Loan Details from API:', details.loan);
+        console.log('Loan Amount:', details.loan.loan_amount, 'Type:', typeof details.loan.loan_amount);
+        console.log('Rental Value:', details.loan.rental_value, 'Type:', typeof details.loan.rental_value);
+        console.log('All loan fields:', Object.keys(details.loan));
+        
+        // Map loan - use the same approach as PortfolioReportScreen
         setLoan({
           id: 0,
           loan_id: details.loan.loan_id,
@@ -47,12 +53,12 @@ const LoanDetailsScreen: React.FC = () => {
           overdue_amount: undefined,
           repaymentSchedule: undefined,
           product_name: details.loan.product_name,
-          loan_amount: details.loan.loan_amount,
+          loan_amount: details.loan.loan_amount || 0,
           interest_rate: details.loan.interest_rate,
           installments: details.loan.installments,
           status: details.loan.status,
           branch_name: details.loan.branch_name,
-          rental_value: details.loan.rental_value,
+          rental_value: details.loan.rental_value || 0,
           repayment_method: details.loan.repayment_method,
           credit_officer: details.loan.credit_officer,
         });
@@ -138,9 +144,15 @@ const LoanDetailsScreen: React.FC = () => {
     { label: 'Total Penalties', value: summary?.total_penalty, color: '#dc3545' },
   ];
 
-  const formatCurrency = (amount: number) => {
-    if (typeof amount !== 'number') return '-';
-    return 'Rs. ' + amount.toLocaleString(undefined, { minimumFractionDigits: 2 });
+  const formatCurrency = (amount: any) => {
+    if (amount === null || amount === undefined || amount === '') return '-';
+    const numAmount = typeof amount === 'string' ? parseFloat(amount) : Number(amount);
+    if (isNaN(numAmount) || numAmount === 0) return '-';
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'LKR',
+      minimumFractionDigits: 2,
+    }).format(numAmount);
   };
   const formatDate = (date: string) => date ? new Date(date).toLocaleDateString() : '-';
 
@@ -209,10 +221,10 @@ const LoanDetailsScreen: React.FC = () => {
                     <View key={inst.id || idx} style={[styles.tableRow, inst.status === 'paid' ? styles.tableRowPaid : inst.status === 'overdue' ? styles.tableRowOverdue : null]}>
                       <Text style={styles.tableCell}>{inst.installment_number ?? '-'}</Text>
                       <Text style={styles.tableCell}>{inst.due_date || ''}</Text>
-                      <Text style={styles.tableCell}>{inst.capital_due}</Text>
-                      <Text style={styles.tableCell}>{inst.interest_due}</Text>
-                      <Text style={styles.tableCell}>{inst.total_due}</Text>
-                      <Text style={styles.tableCell}>{inst.paid_amount}</Text>
+                      <Text style={styles.tableCell}>{formatCurrency(inst.capital_due)}</Text>
+                      <Text style={styles.tableCell}>{formatCurrency(inst.interest_due)}</Text>
+                      <Text style={styles.tableCell}>{formatCurrency(inst.total_due)}</Text>
+                      <Text style={styles.tableCell}>{formatCurrency(inst.paid_amount)}</Text>
                       <Text style={styles.tableCell}>{inst.status === 'paid' ? 'Paid' : inst.status === 'overdue' ? 'Overdue' : 'Pending'}</Text>
                       <Text style={styles.tableCell}>{inst.status === 'paid' ? (inst.paid_date || '') : '--'}</Text>
                     </View>
@@ -237,9 +249,9 @@ const LoanDetailsScreen: React.FC = () => {
                   {payments.map((p, idx) => (
                     <View key={p.id || idx} style={styles.tableRow}>
                       <Text style={styles.tableCell}>{p.payment_date || ''}</Text>
-                      <Text style={styles.tableCell}>{p.amount}</Text>
-                      <Text style={styles.tableCell}>{p.capital_paid}</Text>
-                      <Text style={styles.tableCell}>{p.interest_paid}</Text>
+                      <Text style={styles.tableCell}>{formatCurrency(p.amount)}</Text>
+                      <Text style={styles.tableCell}>{formatCurrency(p.capital_paid)}</Text>
+                      <Text style={styles.tableCell}>{formatCurrency(p.interest_paid)}</Text>
                       <Text style={styles.tableCell}>{p.payment_method || '-'}</Text>
                     </View>
                   ))}

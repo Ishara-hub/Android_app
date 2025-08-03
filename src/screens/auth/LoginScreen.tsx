@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView, SafeAreaView } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { RootState } from '../../store/store';
@@ -8,15 +8,12 @@ import { NavigationProp } from '../../types/navigation';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import Loading from '../../components/common/Loading';
-import SafeAreaWrapper from '../../components/common/SafeAreaWrapper';
-import DebugInfo from '../../components/common/DebugInfo';
 
 const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
-  const [showDebug, setShowDebug] = useState(false);
 
   const dispatch = useDispatch();
   const navigation = useNavigation<NavigationProp>();
@@ -67,89 +64,75 @@ const LoginScreen: React.FC = () => {
     }
   };
 
-
-
+  
   if (isLoading) {
     return <Loading text="Logging in..." fullScreen />;
   }
 
   return (
-    <SafeAreaWrapper style={styles.container} edges={['top', 'bottom']} backgroundColor="#007AFF">
+    <SafeAreaView style={{ flex: 1 }}>
       <KeyboardAvoidingView
-        style={styles.keyboardContainer}
+        style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Microfinance App</Text>
-          <Text style={styles.subtitle}>Field Agent Login</Text>
-          <TouchableOpacity 
-            style={styles.debugButton} 
-            onPress={() => setShowDebug(true)}
-          >
-            <Text style={styles.debugText}>Debug</Text>
-          </TouchableOpacity>
-        </View>
+          <View style={styles.header}>
+            <Text style={styles.title}>TrustWay App</Text>
+            <Text style={styles.subtitle}>Field Agent Login</Text>
+          </View>
 
-        <View style={styles.form}>
-          <Input
-            label="Email"
-            placeholder="Enter your email"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            error={emailError}
-          />
+          <View style={styles.form}>
+            <Input
+              label="Email"
+              placeholder="Enter your email"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              error={emailError}
+            />
 
-          <Input
-            label="Password"
-            placeholder="Enter your password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            error={passwordError}
-          />
+            <Input
+              label="Password"
+              placeholder="Enter your password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              error={passwordError}
+            />
 
-          <Button
-            title="Login"
-            onPress={handleLogin}
-            loading={isLoading}
-            style={styles.loginButton}
-          />
+            <Button
+              title="Login"
+              onPress={handleLogin}
+              loading={isLoading}
+              style={styles.loginButton}
+            />
 
+            <Text style={styles.forgotPassword}>Forgot Password?</Text>
+          </View>
 
-
-          <Text style={styles.forgotPassword}>Forgot Password?</Text>
-        </View>
-
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            Secure payment processing for microfinance
-          </Text>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
-    
-    <DebugInfo 
-      visible={showDebug} 
-      onClose={() => setShowDebug(false)} 
-    />
-    </SafeAreaWrapper>
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>
+              FAFGEN Provider for microfinance App
+            </Text>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  keyboardContainer: {
-    flex: 1,
+    backgroundColor: '#FFFFFF',
   },
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
     paddingHorizontal: 24,
+    paddingVertical: 32,
+    backgroundColor: '#F8F8F8',
   },
   header: {
     alignItems: 'center',
@@ -171,6 +154,9 @@ const styles = StyleSheet.create({
   loginButton: {
     marginTop: 24,
   },
+  testButton: {
+    marginTop: 12,
+  },
   forgotPassword: {
     textAlign: 'center',
     color: '#007AFF',
@@ -184,20 +170,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#8E8E93',
     textAlign: 'center',
-  },
-  debugButton: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
-  },
-  debugText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: '600',
   },
 });
 

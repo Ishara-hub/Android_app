@@ -88,29 +88,37 @@ export interface LoanDetailsReport {
 }
 
 export interface ArrearsReportResponse {
-  arrears: {
-    data: Array<{
-      loan_id: string;
-      member_name: string;
-      member_nic: string;
-      credit_officer_name: string;
-      branch_name: string;
-      product_name: string;
-      loan_amount: number;
-      due_date: string;
-      total_due: number;
-      days_overdue: number;
-      loan_type: string;
-    }>;
-    current_page: number;
-    last_page: number;
-    per_page: number;
-    total: number;
-  };
-  summary: {
+  arrears: Array<{
+    loan_id: string;
+    loan_application_id: number;
+    loan_type: string;
+    member_name: string;
+    member_nic: string;
+    credit_officer_name: string;
+    branch_name: string;
+    product_name: string;
+    loan_amount: number;
+    repayment_method: string;
+    disbursement_date: string;
     total_arrears: number;
+    total_paid: number;
+    max_days_overdue: number;
+    installment_count: number;
+    installments: Array<{
+      installment_date: string;
+      total_due: number;
+      paid_amount: number;
+      interest_due: number;
+      capital_due: number;
+      status: string;
+      days_overdue: number;
+    }>;
+  }>;
+  summary: {
+    total_loans_in_arrears: number;
     total_amount_due: number;
     average_days_overdue: number;
+    total_paid_amount: number;
   };
 }
 
@@ -126,6 +134,10 @@ export const reportsAPI = {
     credit_officer_name?: string;
     per_page?: number;
     page?: number;
+    loan_amount?: number;
+    interest_rate?: number;
+    installments?: number;
+    rental_value?: number;
   }): Promise<PortfolioReportResponse> {
     const queryParams = new URLSearchParams();
     if (params?.branch_id) queryParams.append('branch_id', params.branch_id.toString());
@@ -137,6 +149,10 @@ export const reportsAPI = {
     if (params?.credit_officer_name) queryParams.append('credit_officer_name', params.credit_officer_name);
     if (params?.per_page) queryParams.append('per_page', params.per_page.toString());
     if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.loan_amount) queryParams.append('loan_amount', params.loan_amount.toString());
+    if (params?.interest_rate) queryParams.append('interest_rate', params.interest_rate.toString());
+    if (params?.installments) queryParams.append('installments', params.installments.toString());
+    if (params?.rental_value) queryParams.append('rental_value', params.rental_value.toString());
 
     const response = await api.get(`/reports/portfolio?${queryParams.toString()}`);
     return response.data.data;

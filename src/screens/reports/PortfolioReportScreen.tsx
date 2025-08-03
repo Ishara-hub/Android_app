@@ -31,7 +31,7 @@ const statuses = [
 
 const PortfolioReportScreen: React.FC = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-  const user = useSelector((state: RootState) => (state as RootState).auth.user);
+  const user = useSelector((state: RootState) => state.auth.user);
   const [portfolio, setPortfolio] = useState<PortfolioReportResponse | null>(null);
   const [portfolioFilters, setPortfolioFilters] = useState({ 
     branch_id: '', 
@@ -239,7 +239,7 @@ const PortfolioReportScreen: React.FC = () => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'LKR',
     }).format(amount);
   };
 
@@ -408,7 +408,7 @@ const PortfolioReportScreen: React.FC = () => {
               </View>
               <View style={styles.summaryRow}>
                 <Text style={styles.summaryText}>Outstanding: {formatCurrency(portfolio.summary.total_outstanding)}</Text>
-                <Text style={styles.summaryText}>Avg Interest: {portfolio.summary.average_interest_rate}%</Text>
+                
               </View>
             </Card>
 

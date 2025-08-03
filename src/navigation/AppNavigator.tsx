@@ -20,6 +20,7 @@ import PortfolioReportScreen from '../screens/reports/PortfolioReportScreen';
 import ArrearsReportScreen from '../screens/reports/ArrearsReportScreen';
 import LoanDetailsScreen from '../screens/reports/LoanDetailsScreen';
 import ReceiptScreen from '../screens/payment/ReceiptScreen';
+import MicroBulkPaymentScreen from '../screens/payment/MicroBulkPaymentScreen';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -59,6 +60,7 @@ const AppNavigator: React.FC = () => {
             <Stack.Screen name="PortfolioReport" component={PortfolioReportScreen} />
             <Stack.Screen name="ArrearsReport" component={ArrearsReportScreen} />
             <Stack.Screen name="PaymentHistory" component={PaymentHistoryScreen} />
+            <Stack.Screen name="MicroBulkPayment" component={MicroBulkPaymentScreen} />
             <Stack.Screen name="LoanDetails" component={LoanDetailsScreen} />
             <Stack.Screen name="Receipt" component={ReceiptScreen} />
           </>

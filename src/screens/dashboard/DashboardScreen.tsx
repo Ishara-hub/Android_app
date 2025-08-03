@@ -66,7 +66,7 @@ const DashboardScreen: React.FC = ({ navigation }: any) => {
       {/* Top Bar: User Info and Logout */}
       
       <View style={styles.header}>
-        <Text style={styles.title}>Origin Credit (Pvt) Ltd</Text>
+        <Text style={styles.title}>TrustWay Lanka (Pvt) Ltd</Text>
         <Text style={styles.subtitle}>Payment Mobile System - FAFGEN (0717614883)</Text>
       </View>
       <View style={styles.topBar}>
@@ -91,10 +91,10 @@ const DashboardScreen: React.FC = ({ navigation }: any) => {
 
         <TouchableOpacity
           style={styles.actionButton}
-          onPress={() => navigateToScreen('PaymentHistory')}
+          onPress={() => navigateToScreen('MicroBulkPayment')}
         >
-          <Icon name="receipt" size={24} color="#007AFF" />
-          <Text style={styles.actionText}>Payment History</Text>
+          <Icon name="users" size={24} color="#007AFF" />
+          <Text style={styles.actionText}>Micro Bulk Payment</Text>
         </TouchableOpacity>
 
         <TouchableOpacity

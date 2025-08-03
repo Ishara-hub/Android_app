@@ -210,8 +210,6 @@ const LoanDetailsScreen: React.FC = () => {
                   <View style={styles.tableHeaderRow}>
                     <Text style={styles.tableHeader}>#</Text>
                     <Text style={styles.tableHeader}>Due Date</Text>
-                    <Text style={styles.tableHeader}>Principal</Text>
-                    <Text style={styles.tableHeader}>Interest</Text>
                     <Text style={styles.tableHeader}>Total Due</Text>
                     <Text style={styles.tableHeader}>Paid Amount</Text>
                     <Text style={styles.tableHeader}>Status</Text>
@@ -221,10 +219,8 @@ const LoanDetailsScreen: React.FC = () => {
                     <View key={inst.id || idx} style={[styles.tableRow, inst.status === 'paid' ? styles.tableRowPaid : inst.status === 'overdue' ? styles.tableRowOverdue : null]}>
                       <Text style={styles.tableCell}>{inst.installment_number ?? '-'}</Text>
                       <Text style={styles.tableCell}>{inst.due_date || ''}</Text>
-                      <Text style={styles.tableCell}>{formatCurrency(inst.capital_due)}</Text>
-                      <Text style={styles.tableCell}>{formatCurrency(inst.interest_due)}</Text>
-                      <Text style={styles.tableCell}>{formatCurrency(inst.total_due)}</Text>
-                      <Text style={styles.tableCell}>{formatCurrency(inst.paid_amount)}</Text>
+                      <Text style={styles.tableCell}>{inst.total_due}</Text>
+                      <Text style={styles.tableCell}>{inst.paid_amount}</Text>
                       <Text style={styles.tableCell}>{inst.status === 'paid' ? 'Paid' : inst.status === 'overdue' ? 'Overdue' : 'Pending'}</Text>
                       <Text style={styles.tableCell}>{inst.status === 'paid' ? (inst.paid_date || '') : '--'}</Text>
                     </View>
@@ -249,9 +245,9 @@ const LoanDetailsScreen: React.FC = () => {
                   {payments.map((p, idx) => (
                     <View key={p.id || idx} style={styles.tableRow}>
                       <Text style={styles.tableCell}>{p.payment_date || ''}</Text>
-                      <Text style={styles.tableCell}>{formatCurrency(p.amount)}</Text>
-                      <Text style={styles.tableCell}>{formatCurrency(p.capital_paid)}</Text>
-                      <Text style={styles.tableCell}>{formatCurrency(p.interest_paid)}</Text>
+                      <Text style={styles.tableCell}>{p.amount}</Text>
+                      <Text style={styles.tableCell}>{p.capital_paid}</Text>
+                      <Text style={styles.tableCell}>{p.interest_paid}</Text>
                       <Text style={styles.tableCell}>{p.payment_method || '-'}</Text>
                     </View>
                   ))}
@@ -333,7 +329,7 @@ const styles = StyleSheet.create({
   tableRow: { flexDirection: 'row', paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: '#eee' },
   tableRowPaid: { backgroundColor: '#e6ffe6' },
   tableRowOverdue: { backgroundColor: '#ffe6e6' },
-  tableCell: { flex: 1, fontSize: 12 },
+  tableCell: { flex: 1, fontSize: 12, padding: 3, color: '#333',},
   noDataText: { color: '#888', fontStyle: 'italic', textAlign: 'center', marginVertical: 10 },
 });
 

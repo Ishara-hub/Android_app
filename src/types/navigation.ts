@@ -13,6 +13,7 @@ export type RootStackParamList = {
   ArrearsReport: undefined;
   LoanDetails: { loanId: string };
   Receipt: { paymentId: number };
+  MicroBulkPayment: undefined;
 };
 
 export type NavigationProp = StackNavigationProp<RootStackParamList>; 

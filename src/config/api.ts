@@ -8,13 +8,13 @@ export const API_CONFIG = {
   
   // Staging (Ocean server)
   staging: {
-    baseURL: 'http://165.22.240.220/api',
+    baseURL: 'http://139.59.234.79/microfinance/api',
     timeout: 30000,
   },
   
   // Production (Ocean server - same as staging for now)
   production: {
-    baseURL: 'http://165.22.240.220/api', // Using Ocean server for production
+    baseURL: 'http://139.59.234.79/microfinance/api', // Using Ocean server for production
     timeout: 30000,
   },
 };

@@ -85,7 +85,7 @@ const DashboardScreen: React.FC = ({ navigation }: any) => {
           style={styles.actionButton}
           onPress={() => navigateToScreen('SearchLoan')}
         >
-          <Icon name="search" size={24} color="#007AFF" />
+          <Icon name="search" size={48} color="#007AFF" />
           <Text style={styles.actionText}>Search Loan</Text>
         </TouchableOpacity>
 
@@ -93,7 +93,7 @@ const DashboardScreen: React.FC = ({ navigation }: any) => {
           style={styles.actionButton}
           onPress={() => navigateToScreen('MicroBulkPayment')}
         >
-          <Icon name="users" size={24} color="#007AFF" />
+          <Icon name="payment" size={48} color="#007AFF" />
           <Text style={styles.actionText}>Micro Bulk Payment</Text>
         </TouchableOpacity>
 
@@ -101,7 +101,7 @@ const DashboardScreen: React.FC = ({ navigation }: any) => {
           style={styles.actionButton}
           onPress={() => navigateToScreen('Members')}
         >
-          <Icon name="people" size={24} color="#007AFF" />
+          <Icon name="people" size={48} color="#007AFF" />
           <Text style={styles.actionText}>Members</Text>
         </TouchableOpacity>
 
@@ -109,7 +109,7 @@ const DashboardScreen: React.FC = ({ navigation }: any) => {
           style={styles.actionButton}
           onPress={() => navigateToScreen('Reports')}
         >
-          <Icon name="bar-chart" size={24} color="#007AFF" />
+          <Icon name="bar-chart" size={48} color="#007AFF" />
           <Text style={styles.actionText}>Reports</Text>
         </TouchableOpacity>
       </View>

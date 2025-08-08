@@ -7,7 +7,7 @@ interface IconProps {
   color?: string;
 }
 
-export const Icon: React.FC<IconProps> = ({ name, size = 24, color = '#333' }) => {
+export const Icon: React.FC<IconProps> = ({ name, size = 48, color = '#333' }) => {
   const getIconText = (iconName: string) => {
     const iconMap: { [key: string]: string } = {
       search: '🔍',

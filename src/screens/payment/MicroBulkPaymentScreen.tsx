@@ -304,7 +304,7 @@ const MicroBulkPaymentScreen: React.FC = () => {
                   <View key={loan.id} style={styles.loanItem}>
                     <View style={styles.loanInfo}>
                       <Text style={styles.loanId}>{loan.loan_id}</Text>
-                      <Text style={styles.memberName}>{loan.member.name}</Text>
+                      <Text style={styles.memberName}>{loan.member.initials}</Text>
                       <Text style={styles.memberNic}>{loan.member.nic}</Text>
                       <Text style={styles.groupInfo}>Group: {loan.group_number}</Text>
                       <Text style={styles.dueAmount}>Due: {formatCurrency(loan.total_due)}</Text>
@@ -354,7 +354,7 @@ const MicroBulkPaymentScreen: React.FC = () => {
               return (
                 <View key={loanId} style={styles.selectedLoanRow}>
                   <Text style={styles.selectedLoanText}>
-                    {loan?.member.name} - {formatCurrency(amount)}
+                    {loan?.member.initials} - {formatCurrency(amount)}
                   </Text>
                 </View>
               );
@@ -392,7 +392,7 @@ const MicroBulkPaymentScreen: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#96d2ecff',
     paddingBottom: 40,
   },
   header: {
@@ -455,7 +455,7 @@ const styles = StyleSheet.create({
   },
   loanInfo: { flex: 1, marginRight: 15 },
   loanId: { fontSize: 16, fontWeight: 'bold', color: '#333', marginBottom: 2 },
-  memberName: { fontSize: 14, color: '#333', marginBottom: 2 },
+  memberName: { fontSize: 14, color: '#da841bff', marginBottom: 2 },
   memberNic: { fontSize: 12, color: '#666', marginBottom: 2 },
   groupInfo: { fontSize: 12, color: '#007AFF', marginBottom: 2 },
   dueAmount: { fontSize: 14, fontWeight: '600', color: '#dc3545' },

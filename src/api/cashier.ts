@@ -53,7 +53,7 @@ export interface MicroLoanByCboResponse {
   group_number: number;
   member: {
     id: number;
-    name: string;
+    initials: string;
     nic: string;
   };
   microLoanDetails: Array<{

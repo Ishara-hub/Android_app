@@ -10,6 +10,7 @@ import { RootStackParamList } from '../types/navigation';
 import LoginScreen from '../screens/auth/LoginScreen';
 import DashboardScreen from '../screens/dashboard/DashboardScreen';
 import SearchLoanScreen from '../screens/payment/SearchLoanScreen';
+import SearchLoanReportScreen from '../screens/reports/SearchLoanReportScreen';
 import PaymentScreen from '../screens/payment/PaymentScreen';
 import MemberProfileScreen from '../screens/member/MemberProfileScreen';
 import PaymentHistoryScreen from '../screens/payment/PaymentHistoryScreen';
@@ -53,6 +54,7 @@ const AppNavigator: React.FC = () => {
           <>
             <Stack.Screen name="Dashboard" component={DashboardScreen} />
             <Stack.Screen name="SearchLoan" component={SearchLoanScreen} />
+            <Stack.Screen name="SearchLoanReport" component={SearchLoanReportScreen} />
             <Stack.Screen name="Payment" component={PaymentScreen} />
             <Stack.Screen name="MemberProfile" component={MemberProfileScreen} />
             <Stack.Screen name="Members" component={MembersScreen} />

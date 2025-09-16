@@ -40,6 +40,10 @@ const ReportsScreen: React.FC = () => {
             <Text style={styles.menuTitle}>Arrears Report</Text>
             <Text style={styles.menuDesc}>View overdue loans and arrears</Text>
           </TouchableOpacity>
+          <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('SearchLoanReport')}>
+            <Text style={styles.menuTitle}>Search Loan Details</Text>
+            <Text style={styles.menuDesc}>Search and view detailed loan reports</Text>
+          </TouchableOpacity>
           <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('PaymentHistory')}>
             <Text style={styles.menuTitle}>Payment History</Text>
             <Text style={styles.menuDesc}>View payment history and statistics</Text>

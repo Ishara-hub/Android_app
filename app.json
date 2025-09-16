@@ -32,7 +32,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.ish1993.MicrofinanceApp",
+      "package": "com.fafgen.MicrofinanceApp",
       "permissions": [
         "INTERNET",
         "ACCESS_NETWORK_STATE"
@@ -40,11 +40,6 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "6f251690-21f2-40c2-8c2e-bccd744de01c"
-      }
     },
     "plugins": [
       [
@@ -56,6 +51,11 @@
         }
       ]
     ],
-    "owner": "imadusanka93"
+    "owner": "fafgen",
+    "extra": {
+      "eas": {
+        "projectId": "cb2c8e6f-2187-4991-a4e3-f6c8b8ebd876"
+      }
+    }
   }
 }

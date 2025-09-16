@@ -57,6 +57,7 @@ export const API_ENDPOINTS = {
   // Branches and CBOs
   BRANCHES: '/branches',
   CBOS: '/cbos',
+  CREDIT_OFFICERS: '/credit-officers',
   
   // Test
   TEST_CONNECTION: '/test',

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   View, 
   Text, 
@@ -8,36 +8,24 @@ import {
   TouchableOpacity,
   RefreshControl
 } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import { RootState } from '../../store/store';
-import { searchLoan, clearSearchResult } from '../../store/paymentSlice';
-import { loansAPI } from '../../api/loans';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../../types/navigation';
+import { reportsAPI } from '../../api/reports';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
-import Loading from '../../components/common/Loading';
 import { Card } from '../../components/common/Card';
 import { Icon } from '../../components/common/Icon';
 import SafeAreaWrapper from '../../components/common/SafeAreaWrapper';
 
-const SearchLoanScreen: React.FC = () => {
+const SearchLoanReportScreen: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [loanDetails, setLoanDetails] = useState<any>(null);
-  const [showLoanDetails, setShowLoanDetails] = useState(false);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [showResults, setShowResults] = useState(false);
 
-  const dispatch = useDispatch();
-  const navigation = useNavigation();
-  const { searchResult, isSearching: isSearchingRedux, searchError } = useSelector(
-    (state: RootState) => state.payment
-  );
-
-  useEffect(() => {
-    if (searchError) {
-      Alert.alert('Search Error', searchError);
-    }
-  }, [searchError]);
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   const handleSearch = async () => {
     if (!searchTerm.trim()) {
@@ -47,17 +35,19 @@ const SearchLoanScreen: React.FC = () => {
 
     setIsSearching(true);
     try {
-      // Use the loan search API instead of payment search
-      const response = await loansAPI.searchLoan(searchTerm.trim());
-      setLoanDetails(response);
-      setShowLoanDetails(true);
+      // Search for loans using the reports API
+      const response = await reportsAPI.searchLoans(searchTerm.trim());
+      setSearchResults(response);
+      setShowResults(true);
       
       // Add to search history
       if (!searchHistory.includes(searchTerm.trim())) {
         setSearchHistory(prev => [searchTerm.trim(), ...prev.slice(0, 9)]);
       }
     } catch (error: any) {
-      Alert.alert('Search Error', error.message || 'Loan not found');
+      Alert.alert('Search Error', error.message || 'No loans found');
+      setSearchResults([]);
+      setShowResults(false);
     } finally {
       setIsSearching(false);
     }
@@ -67,11 +57,13 @@ const SearchLoanScreen: React.FC = () => {
     setSearchTerm(term);
     setIsSearching(true);
     try {
-      const response = await loansAPI.searchLoan(term);
-      setLoanDetails(response);
-      setShowLoanDetails(true);
+      const response = await reportsAPI.searchLoans(term);
+      setSearchResults(response);
+      setShowResults(true);
     } catch (error: any) {
-      Alert.alert('Search Error', error.message || 'Loan not found');
+      Alert.alert('Search Error', error.message || 'No loans found');
+      setSearchResults([]);
+      setShowResults(false);
     } finally {
       setIsSearching(false);
     }
@@ -81,35 +73,13 @@ const SearchLoanScreen: React.FC = () => {
     setSearchHistory([]);
   };
 
-  const handleProcessPayment = () => {
-    if (loanDetails?.loan) {
-      // Set the search term and navigate to payment screen
-      setSearchTerm(loanDetails.loan.loan_id);
-      // You can implement navigation here or use a callback
-      Alert.alert(
-        'Process Payment',
-        `Navigate to payment screen for loan ${loanDetails.loan.loan_id}?`,
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { 
-            text: 'Continue', 
-            onPress: () => {
-              // Navigate to payment screen
-              (navigation as any).navigate('Payment', { 
-                searchTerm: loanDetails.loan.loan_id 
-              });
-            }
-          }
-        ]
-      );
-    }
-  };
-
-  const handleViewDetails = async () => {
-    if (loanDetails?.loan?.loan_id) {
-      (navigation as any).navigate('LoanDetails', { loanId: loanDetails.loan.loan_id });
-    } else {
-      Alert.alert('Error', 'No loan selected to view details');
+  const handleViewLoanDetails = (loanId: string) => {
+    console.log('Navigating to LoanDetails with loanId:', loanId);
+    try {
+      navigation.navigate('LoanDetails', { loanId });
+    } catch (error) {
+      console.error('Navigation error:', error);
+      Alert.alert('Navigation Error', 'Failed to navigate to loan details');
     }
   };
 
@@ -123,24 +93,66 @@ const SearchLoanScreen: React.FC = () => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'LKR',
     }).format(amount);
   };
 
-  const getLoanTypeLabel = (type: string) => {
-    switch (type) {
-      case 'business_loan': return 'Business Loan';
-      case 'micro_loan': return 'Micro Loan';
-      case 'lease_loan': return 'Lease Loan';
-      default: return type;
+  const getStatusColor = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case 'settled': return '#28a745';
+      case 'disbursed': return '#007bff';
+      case 'approved': return '#ffc107';
+      case 'pending': return '#6c757d';
+      default: return '#dc3545';
+    }
+  };
+
+  const renderSearchResult = (loan: any, index: number) => (
+    <TouchableOpacity
+      key={`${loan.loan_id}-${index}`}
+      style={styles.loanItem}
+      onPress={() => handleViewLoanDetails(loan.loan_id)}
+    >
+      <View style={styles.loanInfo}>
+        <View style={styles.loanHeader}>
+          <Text style={styles.loanId}>{loan.loan_id}</Text>
+          <View style={styles.statusContainer}>
+            <Text style={[styles.loanType, { backgroundColor: getLoanTypeColor(loan.loan_type) }]}>
+              {loan.loan_type || 'Unknown'}
+            </Text>
+            <Text style={[styles.loanStatus, { color: getStatusColor(loan.status) }]}>
+              {loan.status}
+            </Text>
+          </View>
+        </View>
+        <Text style={styles.loanMember}>{loan.member_name}</Text>
+        <Text style={styles.loanNic}>{loan.member_nic}</Text>
+        <View style={styles.loanDetails}>
+          <Text style={styles.loanAmount}>{formatCurrency(loan.loan_amount)}</Text>
+          <Text style={styles.loanProduct}>{loan.product_name}</Text>
+        </View>
+        <Text style={styles.loanBranch}>{loan.branch_name}</Text>
+      </View>
+      <Icon name="arrow" size={16} color="#007AFF" />
+    </TouchableOpacity>
+  );
+
+  const getLoanTypeColor = (loanType: string) => {
+    switch (loanType?.toUpperCase()) {
+      case 'BL': return '#007bff';
+      case 'LL': return '#28a745';
+      case 'ML': return '#ffc107';
+      default: return '#6c757d';
     }
   };
 
   return (
     <SafeAreaWrapper style={styles.container} edges={['top']} backgroundColor="#007AFF">
       <View style={styles.header}>
-        <Text style={styles.title}>Search Loan</Text>
-        <Text style={styles.subtitle}>Find loan by ID or NIC number</Text>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginRight: 10 }}>
+          <Icon name="arrow-left" size={24} color="#007AFF" />
+        </TouchableOpacity>
+        <Text style={styles.title}>Search Loan Details</Text>
       </View>
 
       <ScrollView 
@@ -170,52 +182,28 @@ const SearchLoanScreen: React.FC = () => {
             disabled={!searchTerm.trim()}
             style={styles.searchButton}
           />
+          
+          {/* Test Navigation Button */}
+          <Button
+            title="Test Navigation to Loan Details"
+            onPress={() => handleViewLoanDetails('TEST001')}
+            style={{ marginTop: 10, backgroundColor: '#28a745' }}
+          />
         </Card>
 
-        {/* Loan Details */}
-        {showLoanDetails && loanDetails && (
-          <Card title="Loan Information" style={styles.card}>
-            <View style={styles.loanInfo}>
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Loan ID:</Text>
-                <Text style={styles.infoValue}>{loanDetails.loan.loan_id}</Text>
+        {/* Search Results */}
+        {showResults && (
+          <Card title="Search Results" style={styles.card}>
+            {searchResults.length > 0 ? (
+              <View>
+                <Text style={styles.resultsCount}>
+                  Found {searchResults.length} loan(s)
+                </Text>
+                {searchResults.map((loan, index) => renderSearchResult(loan, index))}
               </View>
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Member Name:</Text>
-                <Text>{searchResult?.member?.full_name || '-'}</Text>
-              </View>
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>NIC:</Text>
-                <Text>{searchResult?.member?.nic || '-'}</Text>
-              </View>
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Loan Amount:</Text>
-                <Text style={styles.infoValue}>{formatCurrency(loanDetails.loan.loan_amount)}</Text>
-              </View>
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Status:</Text>
-                <Text style={styles.infoValue}>{loanDetails.loan.status}</Text>
-              </View>
-            </View>
-
-            {/* Action Buttons */}
-            <View style={styles.actionButtons}>
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={handleProcessPayment}
-              >
-                <Icon name="payment" size={20} color="#007AFF" />
-                <Text style={styles.actionButtonText}>Process Payment</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={handleViewDetails}
-              >
-                <Icon name="search" size={20} color="#007AFF" />
-                <Text style={styles.actionButtonText}>View Details</Text>
-              </TouchableOpacity>
-            </View>
+            ) : (
+              <Text style={styles.noResultsText}>No loans found with the search term.</Text>
+            )}
           </Card>
         )}
 
@@ -251,7 +239,7 @@ const SearchLoanScreen: React.FC = () => {
             <Text style={styles.helpTitle}>How to search:</Text>
             <View style={styles.helpItem}>
               <Icon name="search" size={16} color="#007AFF" />
-              <Text style={styles.helpText}>Enter the loan ID (e.g., LOAN001)</Text>
+              <Text style={styles.helpText}>Enter the loan ID (e.g., BL001, LL001, ML001)</Text>
             </View>
             <View style={styles.helpItem}>
               <Icon name="search" size={16} color="#007AFF" />
@@ -259,7 +247,15 @@ const SearchLoanScreen: React.FC = () => {
             </View>
             <View style={styles.helpItem}>
               <Icon name="search" size={16} color="#007AFF" />
-              <Text style={styles.helpText}>Use barcode scanner for quick search</Text>
+              <Text style={styles.helpText}>Enter the member's name</Text>
+            </View>
+            <View style={styles.helpItem}>
+              <Icon name="info" size={16} color="#007AFF" />
+              <Text style={styles.helpText}>Searches across all loan types (BL, LL, ML)</Text>
+            </View>
+            <View style={styles.helpItem}>
+              <Icon name="info" size={16} color="#007AFF" />
+              <Text style={styles.helpText}>Tap on any loan to view detailed report</Text>
             </View>
           </View>
         </Card>
@@ -275,18 +271,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   header: {
-    padding: 20,
-    backgroundColor: 'rgba(19, 134, 150, 0.8)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    backgroundColor: '#007AFF',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.1)',
+    minHeight: 60,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: 'white',
-    marginBottom: 5,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.8)',
   },
   content: {
     flex: 1,
@@ -298,54 +295,75 @@ const styles = StyleSheet.create({
   searchButton: {
     marginTop: 10,
   },
-  loanInfo: {
-    backgroundColor: '#f8f9fa',
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 15,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
-  },
-  infoLabel: {
+  resultsCount: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#495057',
-    flex: 1,
+    color: '#666',
+    marginBottom: 12,
+    fontStyle: 'italic',
   },
-  infoValue: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#212529',
-    flex: 1,
-    textAlign: 'right',
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 10,
-  },
-  actionButton: {
-    flex: 1,
+  loanItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#f8f9fa',
+    justifyContent: 'space-between',
+    backgroundColor: '#fff',
     borderRadius: 8,
     padding: 12,
+    marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#dee2e6',
+    borderColor: '#e9ecef',
   },
-  actionButtonText: {
-    marginLeft: 8,
+  loanInfo: {
+    flex: 1,
+  },
+  loanHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  loanId: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: 'bold',
     color: '#007AFF',
+  },
+  loanStatus: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  loanMember: {
+    fontSize: 14,
+    color: '#333',
+    marginBottom: 2,
+  },
+  loanNic: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 4,
+  },
+  loanDetails: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 2,
+  },
+  loanAmount: {
+    fontSize: 14,
+    color: '#28a745',
+    fontWeight: '600',
+  },
+  loanProduct: {
+    fontSize: 12,
+    color: '#666',
+  },
+  loanBranch: {
+    fontSize: 12,
+    color: '#666',
+  },
+  noResultsText: {
+    color: '#888',
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginVertical: 10,
   },
   historyHeader: {
     flexDirection: 'row',
@@ -410,6 +428,19 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     lineHeight: 20,
   },
+  statusContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  loanType: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: 'white',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 3,
+  },
 });
 
-export default SearchLoanScreen; 
+export default SearchLoanReportScreen;

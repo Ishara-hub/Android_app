@@ -158,6 +158,29 @@ export const reportsAPI = {
     return response.data.data;
   },
 
+  // Search loans by loan ID or NIC
+  async searchLoans(searchTerm: string): Promise<Array<{
+    loan_id: string;
+    member_name: string;
+    member_nic: string;
+    branch_name: string;
+    product_name: string;
+    loan_amount: number;
+    interest_rate: number;
+    installments: number;
+    status: string;
+    rental_value?: number;
+    repayment_method?: string;
+    credit_officer?: string;
+    loan_type?: string;
+  }>> {
+    const queryParams = new URLSearchParams();
+    queryParams.append('search', searchTerm);
+
+    const response = await api.get(`/reports/search-loans?${queryParams.toString()}`);
+    return response.data.data.loans;
+  },
+
   // Get loan details report
   async getLoanDetails(loanId: string): Promise<LoanDetailsReport> {
     const response = await api.get(`/reports/loan-details/${loanId}`);

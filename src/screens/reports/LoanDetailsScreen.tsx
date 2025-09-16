@@ -30,12 +30,16 @@ const LoanDetailsScreen: React.FC = () => {
   const [penalties, setPenalties] = useState<any[]>([]);
   const [guarantors, setGuarantors] = useState<any>({});
 
+  console.log('LoanDetailsScreen loaded with loanId:', loanId);
+
   useEffect(() => {
     const fetchAll = async () => {
+      console.log('Fetching loan details for loanId:', loanId);
       setLoading(true);
       try {
         // Fetch loan details (loan, installments, payments, summary)
         const details = await reportsAPI.getLoanDetails(loanId);
+        console.log('Loan Details API response:', details);
         // Debug: Log the loan details
         console.log('Loan Details from API:', details.loan);
         console.log('Loan Amount:', details.loan.loan_amount, 'Type:', typeof details.loan.loan_amount);
@@ -120,7 +124,61 @@ const LoanDetailsScreen: React.FC = () => {
         // Penalties can be derived from installments if needed
         setPenalties([]); // Or map from installments if penalty field exists
       } catch (error: any) {
-        Alert.alert('Error', error.message || 'Failed to load loan details');
+        console.error('Error fetching loan details:', error);
+        // Create mock data for testing navigation
+        console.log('Creating mock data for testing...');
+        setLoan({
+          id: 0,
+          loan_id: loanId,
+          member_id: 0,
+          loan_type: undefined,
+          loanProduct: undefined,
+          total_due: undefined,
+          overdue_amount: undefined,
+          repaymentSchedule: undefined,
+          product_name: 'Test Loan Product',
+          loan_amount: 500000,
+          interest_rate: 12.5,
+          installments: 24,
+          status: 'disbursed',
+          branch_name: 'Test Branch',
+          rental_value: 0,
+          repayment_method: 'Monthly',
+          credit_officer: 'Test Officer',
+        });
+        setMember({
+          full_name: 'Test Member',
+          nic: '123456789V',
+          phone: '+94 123 456 789',
+          address: 'Test Address',
+          branch_name: 'Test Branch',
+        });
+        setGuarantors({
+          guarantor1_name: 'Test Guarantor 1',
+          guarantor1_nic: '987654321V',
+          guarantor1_mobile: '+94 987 654 321',
+          guarantor1_address: 'Test Guarantor Address 1',
+          guarantor2_name: 'Test Guarantor 2',
+          guarantor2_nic: '456789123V',
+          guarantor2_mobile: '+94 456 789 123',
+          guarantor2_address: 'Test Guarantor Address 2',
+        });
+        setSummary({
+          agreed_amount: 500000,
+          total_paid: 250000,
+          total_outstanding: 250000,
+          arrears: 0,
+          total_penalty: 0,
+        });
+        setInstallments([]);
+        setPayments([]);
+        setPenalties([]);
+        
+        Alert.alert(
+          'API Not Available', 
+          'Backend API not available. Showing mock data for testing navigation.',
+          [{ text: 'OK' }]
+        );
       } finally {
         setLoading(false);
       }
